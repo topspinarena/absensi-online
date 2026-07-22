@@ -41,18 +41,19 @@ class AbsensiController extends Controller
     }
 
     public function index()
-    {
-        $absensi = Absensi::with('user')
-            ->orderBy('tanggal', 'DESC')
-            ->get();
+{
+    $absensi = Absensi::with('user')
+        ->where('user_id', Auth::id())
+        ->orderByDesc('tanggal')
+        ->get();
 
-       $lokasi = SettingLokasi::first();
+    $lokasi = SettingLokasi::first();
 
     return view('absensi.index', compact(
-    'absensi',
-    'lokasi'
-));
-    }
+        'absensi',
+        'lokasi'
+    ));
+}
 
     public function masuk(Request $request)
     {
