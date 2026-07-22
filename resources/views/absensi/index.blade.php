@@ -4,7 +4,19 @@
 
 <div class="container">
 
-    <h2 class="mb-4">Absensi Online</h2>
+    <h2 class="mb-3">Absensi Online</h2>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
 
     <div class="row">
 
@@ -18,14 +30,18 @@
 
                 <div class="card-body text-center">
 
-                    <video id="video"
-                           autoplay
-                           playsinline
-                           width="100%"
-                           style="border-radius:10px;border:1px solid #ccc">
+                    <video
+                        id="video"
+                        autoplay
+                        playsinline
+                        width="100%"
+                        class="border rounded">
                     </video>
 
-                    <canvas id="canvas" style="display:none"></canvas>
+                    <canvas
+                        id="canvas"
+                        style="display:none;">
+                    </canvas>
 
                 </div>
 
@@ -38,7 +54,7 @@
             <div class="card">
 
                 <div class="card-header bg-success text-white">
-                    Informasi Lokasi
+                    Status Lokasi
                 </div>
 
                 <div class="card-body">
@@ -48,8 +64,8 @@
                     </h5>
 
                     <p>
-                        Jarak :
-                        <strong id="jarak">-</strong>
+                        <strong>Jarak :</strong>
+                        <span id="jarak">-</span>
                     </p>
 
                 </div>
@@ -58,15 +74,27 @@
 
             <br>
 
-            <form action="{{ route('absensi.masuk') }}"
-                  method="POST"
-                  id="formAbsen">
+            <form
+                id="formAbsen"
+                method="POST"
+                action="{{ route('absensi.masuk') }}">
 
                 @csrf
 
-                <input type="hidden" name="latitude" id="latitude">
-                <input type="hidden" name="longitude" id="longitude">
-                <input type="hidden" name="foto" id="foto">
+                <input
+                    type="hidden"
+                    name="latitude"
+                    id="latitude">
+
+                <input
+                    type="hidden"
+                    name="longitude"
+                    id="longitude">
+
+                <input
+                    type="hidden"
+                    name="foto"
+                    id="foto">
 
                 <button
                     id="btnMasuk"
@@ -81,8 +109,9 @@
 
             <br>
 
-            <form action="{{ route('absensi.keluar') }}"
-                  method="POST">
+            <form
+                method="POST"
+                action="{{ route('absensi.keluar') }}">
 
                 @csrf
 
@@ -100,9 +129,7 @@
 
     <hr>
 
-    <h4>Riwayat Absensi</h4>
-
-    <table class="table table-bordered">
+    <table class="table table-bordered table-striped">
 
         <thead>
 
@@ -127,20 +154,29 @@
             <tr>
 
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $row->user->name ?? '-' }}</td>
+
+                <td>{{ $row->user->name }}</td>
+
                 <td>{{ $row->tanggal }}</td>
+
                 <td>{{ $row->jam_masuk }}</td>
+
                 <td>{{ $row->jam_keluar }}</td>
+
                 <td>{{ $row->status }}</td>
 
                 <td>
 
                     @if($row->foto)
 
-                        <img
-                            src="{{ asset('storage/absensi/'.$row->foto) }}"
-                            width="80"
-                            class="img-thumbnail">
+                        <a href="{{ asset('storage/absensi/'.$row->foto) }}" target="_blank">
+
+                            <img
+                                src="{{ asset('storage/absensi/'.$row->foto) }}"
+                                width="80"
+                                class="img-thumbnail">
+
+                        </a>
 
                     @else
 
@@ -157,7 +193,7 @@
             <tr>
 
                 <td colspan="7" class="text-center">
-                    Belum ada data absensi.
+                    Belum ada data absensi
                 </td>
 
             </tr>
@@ -172,12 +208,13 @@
 
 <script>
 
-const kantorLat = {{ $lokasi->latitude ?? 0 }};
-const kantorLng = {{ $lokasi->longitude ?? 0 }};
-const radius    = {{ $lokasi->radius ?? 0 }};
+const kantorLat={{ $lokasi->latitude ?? 0 }};
+const kantorLng={{ $lokasi->longitude ?? 0 }};
+const radius={{ $lokasi->radius ?? 0 }};
 
-const video  = document.getElementById('video');
-const canvas = document.getElementById('canvas');
+const video=document.getElementById('video');
+const canvas=document.getElementById('canvas');
+const btn=document.getElementById('btnMasuk');
 
 navigator.mediaDevices.getUserMedia({
 
@@ -186,94 +223,121 @@ navigator.mediaDevices.getUserMedia({
     }
 
 })
-.then(function(stream){
+.then(stream=>{
 
-    video.srcObject = stream;
+    video.srcObject=stream;
 
 })
-.catch(function(){
+.catch(()=>{
 
     alert("Kamera tidak dapat diakses.");
 
 });
 
-function hitungJarak(lat1, lon1, lat2, lon2){
+function hitungJarak(lat1,lon1,lat2,lon2){
 
-    let R = 6371000;
+    const R=6371000;
 
-    let dLat = (lat2-lat1) * Math.PI/180;
-    let dLon = (lon2-lon1) * Math.PI/180;
+    const dLat=(lat2-lat1)*Math.PI/180;
+    const dLon=(lon2-lon1)*Math.PI/180;
 
-    let a =
-        Math.sin(dLat/2)*Math.sin(dLat/2)+
+    const a=
+        Math.sin(dLat/2)**2+
         Math.cos(lat1*Math.PI/180)*
         Math.cos(lat2*Math.PI/180)*
-        Math.sin(dLon/2)*
-        Math.sin(dLon/2);
+        Math.sin(dLon/2)**2;
 
-    let c = 2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+    const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 
     return R*c;
 
 }
 
-if(navigator.geolocation){
+function updateLokasi(pos){
 
-    navigator.geolocation.getCurrentPosition(function(pos){
+    const lat=pos.coords.latitude;
+    const lng=pos.coords.longitude;
+    const acc=pos.coords.accuracy;
 
-        let lat = pos.coords.latitude;
-        let lng = pos.coords.longitude;
+    document.getElementById("latitude").value=lat;
+    document.getElementById("longitude").value=lng;
 
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
+    const jarak=hitungJarak(
+        kantorLat,
+        kantorLng,
+        lat,
+        lng
+    );
 
-        let jarak = hitungJarak(
-            kantorLat,
-            kantorLng,
-            lat,
-            lng
-        );
+    document.getElementById("jarak").innerHTML=
+        Math.round(jarak)+" Meter | Akurasi ±"+Math.round(acc)+" Meter";
 
-        document.getElementById('jarak').innerHTML =
-            Math.round(jarak)+" Meter";
+    if(acc>30){
 
-        if(jarak <= radius){
+        document.getElementById("statusLokasi").innerHTML=
+        "🟡 Menunggu GPS lebih akurat...";
 
-            document.getElementById('statusLokasi').innerHTML =
-                "🟢 Di Dalam Radius";
+        btn.disabled=true;
 
-            document.getElementById('btnMasuk').disabled = false;
+        return;
 
-        }else{
+    }
 
-            document.getElementById('statusLokasi').innerHTML =
-                "🔴 Di Luar Radius";
+    if(jarak<=radius){
 
-            document.getElementById('btnMasuk').disabled = true;
+        document.getElementById("statusLokasi").innerHTML=
+        "🟢 Anda berada di dalam radius";
 
-        }
+        btn.disabled=false;
 
-    }, function(){
+    }else{
 
-        alert("Lokasi tidak diizinkan.");
+        document.getElementById("statusLokasi").innerHTML=
+        "🔴 Anda berada di luar radius";
 
-    });
+        btn.disabled=true;
+
+    }
 
 }
 
-document.getElementById('formAbsen').addEventListener('submit',function(){
+function gagalLokasi(){
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    alert("GPS tidak dapat diakses. Aktifkan Lokasi Presisi.");
 
-    canvas.getContext('2d').drawImage(
+}
+
+navigator.geolocation.watchPosition(
+
+    updateLokasi,
+
+    gagalLokasi,
+
+    {
+
+        enableHighAccuracy:true,
+        timeout:20000,
+        maximumAge:0
+
+    }
+
+);
+
+document.getElementById("formAbsen").addEventListener("submit",function(){
+
+    canvas.width=video.videoWidth;
+    canvas.height=video.videoHeight;
+
+    canvas.getContext("2d").drawImage(
         video,
         0,
-        0
+        0,
+        canvas.width,
+        canvas.height
     );
 
-    document.getElementById('foto').value =
-        canvas.toDataURL('image/jpeg');
+    document.getElementById("foto").value=
+        canvas.toDataURL("image/jpeg",0.8);
 
 });
 
