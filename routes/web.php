@@ -6,7 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\SettingLokasiController;
-
+Route::redirect('/', '/login');
 /*
 |--------------------------------------------------------------------------
 | Login
