@@ -3,9 +3,12 @@ body{
     background:#f4f7fb;
 }
 
+/* NAVBAR */
+
 .navbar{
     background:linear-gradient(90deg,#2563eb,#1d4ed8);
     box-shadow:0 8px 25px rgba(0,0,0,.12);
+    padding:12px 0;
 }
 
 .navbar-brand{
@@ -22,6 +25,8 @@ body{
     opacity:.85;
 }
 
+/* CARD */
+
 .card{
     border:none;
     border-radius:18px;
@@ -33,6 +38,35 @@ body{
     transform:translateY(-5px);
 }
 
+/* HERO */
+
+.hero-card{
+    background:linear-gradient(135deg,#2563eb,#4f8dfd);
+    color:#fff;
+    border-radius:25px;
+    overflow:hidden;
+}
+
+.hero-card h2{
+    font-weight:700;
+}
+
+.hero-card p{
+    opacity:.9;
+}
+
+/* STAT */
+
+.stat-card{
+    transition:.3s;
+}
+
+.stat-card:hover{
+    transform:translateY(-6px);
+}
+
+/* BUTTON */
+
 .btn{
     border-radius:12px;
     font-weight:600;
@@ -43,12 +77,123 @@ body{
     transform:translateY(-2px);
 }
 
+/* TABLE */
+
 .table{
-    background:white;
+    background:#fff;
     border-radius:15px;
     overflow:hidden;
 }
 
 .alert{
     border-radius:15px;
+}
+
+/* ===================================
+   TABLET & MOBILE
+=================================== */
+
+@media(max-width:991px){
+
+.container{
+    padding-left:15px;
+    padding-right:15px;
+}
+
+.navbar{
+    padding:10px;
+}
+
+.navbar-brand img{
+    width:38px;
+}
+
+.logo-text div{
+    font-size:17px!important;
+}
+
+.logo-text small{
+    font-size:10px;
+}
+
+/* menu */
+
+#menu{
+    background:#fff;
+    margin-top:15px;
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 12px 25px rgba(0,0,0,.12);
+}
+
+#menu .btn{
+    width:100%;
+    margin-bottom:10px;
+    text-align:left;
+}
+
+/* hero */
+
+.hero-card{
+    text-align:center;
+    padding:30px 20px!important;
+}
+
+.hero-card h2{
+    font-size:25px;
+}
+
+.hero-card h3{
+    font-size:28px;
+}
+
+/* card */
+
+.card{
+    margin-bottom:15px;
+}
+
+/* table */
+
+.table-responsive{
+    overflow-x:auto;
+}
+
+.table{
+    min-width:700px;
+}
+
+}
+
+/* ===================================
+   PHONE
+=================================== */
+
+@media(max-width:576px){
+
+body{
+    font-size:14px;
+}
+
+.hero-card{
+    border-radius:20px;
+}
+
+.hero-card h2{
+    font-size:22px;
+}
+
+.hero-card p{
+    font-size:14px;
+}
+
+.card-body{
+    padding:18px;
+}
+
+.btn{
+    font-size:15px;
+    padding:12px;
+}
+
 }
