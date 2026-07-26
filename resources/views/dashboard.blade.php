@@ -2,155 +2,461 @@
 
 @section('content')
 
-<div class="container mt-4">
+<style>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>Dashboard Administrator</h2>
-            <p class="text-muted mb-0">
-                Selamat datang, {{ Auth::user()->name }}
-            </p>
-        </div>
+.hero-card{
 
-        <div>
-            <span class="badge bg-dark">
-                {{ now()->format('d M Y') }}
-            </span>
-        </div>
-    </div>
+background:linear-gradient(135deg,#0d6efd,#4b8cff);
 
+color:white;
 
-    {{-- STATISTIK --}}
-    <div class="row g-3 mb-4">
+border-radius:25px;
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <p class="text-muted mb-1">Total Karyawan</p>
-                    <h2>{{ $totalKaryawan }}</h2>
-                    <small class="text-muted">
-                        Karyawan terdaftar
-                    </small>
-                </div>
-            </div>
-        </div>
+overflow:hidden;
 
+}
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <p class="text-muted mb-1">Hadir Hari Ini</p>
-                    <h2>{{ $hadirHariIni }}</h2>
-                    <small class="text-success">
-                        Sudah melakukan absensi
-                    </small>
-                </div>
-            </div>
-        </div>
+.hero-card h2{
 
+font-weight:700;
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <p class="text-muted mb-1">Belum Absen</p>
-                    <h2>{{ $belumAbsen }}</h2>
-                    <small class="text-danger">
-                        Belum melakukan absensi
-                    </small>
-                </div>
-            </div>
-        </div>
+}
 
+.stat-card{
 
-        <div class="col-md-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <p class="text-muted mb-1">Total Absensi</p>
-                    <h2>{{ $absensiHariIni->count() }}</h2>
-                    <small class="text-primary">
-                        Data hari ini
-                    </small>
-                </div>
-            </div>
-        </div>
+border:none;
 
-    </div>
+border-radius:20px;
 
+transition:.3s;
 
-    {{-- FILTER ABSENSI --}}
+}
 
-<div class="card shadow-sm border-0 mb-4">
+.stat-card:hover{
 
-    <div class="card-body">
+transform:translateY(-5px);
 
-        <form method="GET" action="{{ route('dashboard') }}">
+box-shadow:0 15px 35px rgba(0,0,0,.12);
 
-            <div class="row align-items-end g-3">
+}
 
-                <div class="col-md-4">
+.stat-icon{
 
-                    <label class="form-label">
-                        Pilih Tanggal
-                    </label>
+font-size:38px;
 
-                    <input
-                        type="date"
-                        name="tanggal"
-                        value="{{ $tanggal }}"
-                        class="form-control"
-                    >
+opacity:.85;
 
-                </div>
+}
 
-                <div class="col-md-4">
+.table thead{
 
-                    <label class="form-label">
-                        Pilih Karyawan
-                    </label>
+background:#0d6efd;
 
-                    <select name="user_id" class="form-control">
+color:white;
 
-                        <option value="">
-                            Semua Karyawan
-                        </option>
+}
 
-                        @foreach($karyawan as $user)
+</style>
 
-                            <option
-                                value="{{ $user->id }}"
-                                {{ request('user_id') == $user->id ? 'selected' : '' }}
-                            >
-                                {{ $user->name }}
-                            </option>
+<div class="hero-card shadow mb-4">
 
-                        @endforeach
+<div class="card-body p-5">
 
-                    </select>
+<div class="row align-items-center">
 
-                </div>
+<div class="col-lg-8">
 
-                <div class="col-md-4">
+<h2>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Tampilkan
-                    </button>
+👋 Selamat Datang,
+{{ Auth::user()->name }}
 
-                    <a
-                        href="{{ route('dashboard') }}"
-                        class="btn btn-secondary"
-                    >
-                        Reset
-                    </a>
+</h2>
 
-                </div>
+<p class="mb-0">
 
-            </div>
+TOP SPIN ARENA - Sistem Absensi Online
 
-        </form>
-
-    </div>
+</p>
 
 </div>
+
+<div class="col-lg-4 text-end">
+
+<h3 id="jam"></h3>
+
+<h5 id="tanggal"></h5>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="row g-4 mb-4">
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<small>Total Karyawan</small>
+
+<h2>{{ $totalKaryawan }}</h2>
+
+</div>
+
+<div class="stat-icon">
+
+👥
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<small>Hadir Hari Ini</small>
+
+<h2 class="text-success">
+
+{{ $hadirHariIni }}
+
+</h2>
+
+</div>
+
+<div class="stat-icon">
+
+✅
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<small>Belum Absen</small>
+
+<h2 class="text-danger">
+
+{{ $belumAbsen }}
+
+</h2>
+
+</div>
+
+<div class="stat-icon">
+
+⏰
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="col-md-3">
+
+<div class="card stat-card shadow">
+
+<div class="card-body">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<small>Total Absensi</small>
+
+<h2>
+
+{{ $absensiHariIni->count() }}
+
+</h2>
+
+</div>
+
+<div class="stat-icon">
+
+📋
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="card shadow border-0 mb-4">
+
+<div class="card-body">
+
+<form method="GET">
+
+<div class="row g-3">
+
+<div class="col-md-4">
+
+<label>Tanggal</label>
+
+<input
+type="date"
+name="tanggal"
+value="{{ $tanggal }}"
+class="form-control">
+
+</div>
+
+<div class="col-md-4">
+
+<label>Karyawan</label>
+
+<select
+name="user_id"
+class="form-control">
+
+<option value="">
+
+Semua Karyawan
+
+</option>
+
+@foreach($karyawan as $user)
+
+<option
+value="{{ $user->id }}"
+{{ request('user_id')==$user->id?'selected':'' }}>
+
+{{ $user->name }}
+
+</option>
+
+@endforeach
+
+</select>
+
+</div>
+
+<div class="col-md-4 d-flex align-items-end">
+
+<button class="btn btn-primary me-2">
+
+Filter
+
+</button>
+
+<a
+href="{{ route('dashboard') }}"
+class="btn btn-secondary">
+
+Reset
+
+</a>
+
+</div>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<div class="card shadow border-0">
+
+<div class="card-header bg-primary text-white">
+
+Data Absensi
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table table-hover mb-0">
+
+<thead>
+
+<tr>
+
+<th>No</th>
+
+<th>Nama</th>
+
+<th>Tanggal</th>
+
+<th>Masuk</th>
+
+<th>Pulang</th>
+
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@forelse($absensiHariIni as $absen)
+
+<tr>
+
+<td>{{ $loop->iteration }}</td>
+
+<td>{{ $absen->user->name }}</td>
+
+<td>{{ $absen->tanggal }}</td>
+
+<td>{{ $absen->jam_masuk ?? '-' }}</td>
+
+<td>{{ $absen->jam_keluar ?? '-' }}</td>
+
+<td>
+
+@if($absen->status=='Hadir')
+
+<span class="badge bg-success">
+
+Hadir
+
+</span>
+
+@elseif($absen->status=='Izin')
+
+<span class="badge bg-warning">
+
+Izin
+
+</span>
+
+@elseif($absen->status=='Sakit')
+
+<span class="badge bg-info">
+
+Sakit
+
+</span>
+
+@else
+
+<span class="badge bg-danger">
+
+{{ $absen->status }}
+
+</span>
+
+@endif
+
+</td>
+
+</tr>
+
+@empty
+
+<tr>
+
+<td colspan="6" class="text-center">
+
+Belum ada data.
+
+</td>
+
+</tr>
+
+@endforelse
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+function waktu(){
+
+const d=new Date();
+
+document.getElementById("jam").innerHTML=d.toLocaleTimeString('id-ID');
+
+document.getElementById("tanggal").innerHTML=d.toLocaleDateString('id-ID',{
+
+weekday:'long',
+
+day:'numeric',
+
+month:'long',
+
+year:'numeric'
+
+});
+
+}
+
+setInterval(waktu,1000);
+
+waktu();
+
+</script>
+
+@endsection
