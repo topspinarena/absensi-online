@@ -42,17 +42,15 @@ class AbsensiController extends Controller
 
     public function index()
 {
-    $absensi = Absensi::with('user')
-        ->where('user_id', Auth::id())
-        ->orderByDesc('tanggal')
-        ->get();
+    $absensi = Absensi::where('user_id', auth()->id())
+    ->whereDate('tanggal', today())
+    ->first();
 
-    $lokasi = SettingLokasi::first();
-
-    return view('absensi.index', compact(
-        'absensi',
-        'lokasi'
-    ));
+if ($absensi && in_array($absensi->status, ['Izin', 'Sakit', 'Off', 'Cuti'])) {
+    return back()->with(
+        'info',
+        'Anda memiliki pengajuan '.$absensi->status.' yang telah disetujui.'
+    );
 }
 
     public function masuk(Request $request)

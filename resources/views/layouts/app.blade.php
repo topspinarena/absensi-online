@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Absensi Online</title>
 
@@ -18,7 +18,7 @@
         }
 
         .navbar-brand{
-            color:#fff !important;
+            color:white !important;
             font-weight:bold;
         }
 
@@ -28,8 +28,8 @@
             box-shadow:0 2px 10px rgba(0,0,0,.08);
         }
     </style>
-</head>
 
+</head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark">
@@ -43,7 +43,7 @@
 
             @auth
 
-                @if(Auth::user()->role == 'admin')
+                @if(auth()->user()->role == 'admin')
 
                     <a href="{{ route('dashboard') }}" class="btn btn-light btn-sm">
                         Dashboard
@@ -61,11 +61,29 @@
                         Riwayat
                     </a>
 
-                @endif
+                    <a href="{{ route('izin.index') }}" class="btn btn-primary btn-sm">
+                        Pengajuan Izin
+                    </a>
 
-                <a href="{{ route('absensi.index') }}" class="btn btn-success btn-sm">
-                    Absensi
-                </a>
+                    <a href="{{ route('approval.index') }}" class="btn btn-dark btn-sm">
+                        Approval Izin
+                    </a>
+
+                    <a href="{{ route('absensi.index') }}" class="btn btn-success btn-sm">
+                        Absensi
+                    </a>
+
+                @else
+
+                    <a href="{{ route('absensi.index') }}" class="btn btn-success btn-sm">
+                        Absensi
+                    </a>
+
+                    <a href="{{ route('izin.index') }}" class="btn btn-primary btn-sm">
+                        Pengajuan Izin
+                    </a>
+
+                @endif
 
                 <a href="/logout" class="btn btn-danger btn-sm">
                     Logout
