@@ -16,26 +16,36 @@ class AuthController extends Controller
     // Proses login
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        \Log::info('Login dimulai');
 
-        if (Auth::attempt($credentials)) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-    $request->session()->regenerate();
+    \Log::info('Email: '.$request->email);
 
-    if (Auth::user()->role == 'admin') {
-        return redirect('/dashboard');
+    if (Auth::attempt($credentials)) {
+
+        \Log::info('Auth berhasil');
+
+        $request->session()->regenerate();
+
+        \Log::info('Session berhasil');
+
+        if (Auth::user()->role == 'admin') {
+            return redirect('/dashboard');
+        }
+
+        return redirect('/absensi');
     }
 
-    return redirect('/absensi');
+    \Log::warning('Login gagal');
+
+    return back()->withErrors([
+        'email' => 'Email atau Password salah.',
+    ]);
 }
-        return back()->withErrors([
-            'email' => 'Email atau Password salah.',
-        ]);
-    }
-
     // Logout
     public function logout(Request $request)
     {
