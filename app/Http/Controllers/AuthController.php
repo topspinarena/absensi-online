@@ -37,7 +37,7 @@ class AuthController extends Controller
             return redirect('/dashboard');
         }
 
-        return redirect('/absensi');
+        return redirect('/dashboard');
     }
 
     \Log::warning('Login gagal');
