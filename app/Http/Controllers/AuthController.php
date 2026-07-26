@@ -15,8 +15,8 @@ class AuthController extends Controller
 
     // Proses login
     public function login(Request $request)
-    {
-        \Log::info('Login dimulai');
+{
+    \Log::info('Login dimulai');
 
     $credentials = $request->validate([
         'email' => 'required|email',
@@ -37,7 +37,7 @@ class AuthController extends Controller
             return redirect('/dashboard');
         }
 
-        return redirect('/dashboard');
+        return redirect('/absensi');
     }
 
     \Log::warning('Login gagal');
