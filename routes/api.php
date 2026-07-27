@@ -22,19 +22,19 @@ Route::post('/login', [AuthApiController::class, 'login']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileApiController::class, 'index']);
 
-    // Riwayat Absensi
+    // Riwayat
     Route::get('/riwayat', [RiwayatApiController::class, 'index']);
 
     // Absensi
     Route::post('/absensi/masuk', [AbsensiApiController::class, 'masuk']);
     Route::post('/absensi/keluar', [AbsensiApiController::class, 'keluar']);
 
-    // Pengajuan Izin
+    // Izin
     Route::get('/izin', [IzinApiController::class, 'index']);
     Route::post('/izin', [IzinApiController::class, 'store']);
 
