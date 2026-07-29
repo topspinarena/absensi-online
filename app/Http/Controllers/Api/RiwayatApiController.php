@@ -10,10 +10,13 @@ class RiwayatApiController extends Controller
 {
     public function index()
     {
-        return response()->json(
-            Absensi::where('user_id',Auth::id())
+        $riwayat = Absensi::where('user_id', Auth::id())
             ->latest()
-            ->get()
-        );
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $riwayat
+        ]);
     }
 }
