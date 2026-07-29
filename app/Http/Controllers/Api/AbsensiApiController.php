@@ -17,8 +17,8 @@ class AbsensiApiController extends Controller
         ]);
 
         // Koordinat kantor
-        $officeLat = -6.200000;
-        $officeLng = 106.816666;
+        $officeLat = -5.167001;
+        $officeLng = 119.394241;
         $radius = 100; // meter
 
         $jarak = $this->hitungJarak(
