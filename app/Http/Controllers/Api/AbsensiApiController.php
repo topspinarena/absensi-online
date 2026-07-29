@@ -11,7 +11,31 @@ class AbsensiApiController extends Controller
 {
     public function masuk(Request $request)
     {
-        // Cek apakah hari ini sudah absen masuk
+        $request->validate([
+            'latitude' => 'required',
+            'longitude' => 'required',
+        ]);
+
+        // Koordinat kantor
+        $officeLat = -6.200000;
+        $officeLng = 106.816666;
+        $radius = 100; // meter
+
+        $jarak = $this->hitungJarak(
+            $request->latitude,
+            $request->longitude,
+            $officeLat,
+            $officeLng
+        );
+
+        if ($jarak > $radius) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda berada di luar area kantor.'
+            ], 422);
+        }
+
+        // Cek apakah sudah absen hari ini
         $cek = Absensi::where('user_id', $request->user()->id)
             ->whereDate('tanggal', Carbon::today())
             ->first();
@@ -19,25 +43,23 @@ class AbsensiApiController extends Controller
         if ($cek) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda sudah melakukan absen masuk hari ini.'
+                'message' => 'Anda sudah melakukan absen masuk.'
             ], 400);
         }
 
-        $absensi = Absensi::create([
-            'user_id'     => $request->user()->id,
-            'tanggal'     => Carbon::today(),
-            'jam_masuk'   => Carbon::now()->format('H:i:s'),
-            'status'      => 'Hadir',
-            'latitude'    => null,
-            'longitude'   => null,
-            'foto'        => null,
-            'jarak'       => null,
+        Absensi::create([
+            'user_id' => $request->user()->id,
+            'tanggal' => Carbon::today(),
+            'jam_masuk' => Carbon::now()->format('H:i:s'),
+            'status' => 'Hadir',
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'jarak' => round($jarak)
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Absen masuk berhasil.',
-            'data'    => $absensi
+            'message' => 'Absen masuk berhasil.'
         ]);
     }
 
@@ -69,5 +91,24 @@ class AbsensiApiController extends Controller
             'success' => true,
             'message' => 'Absen pulang berhasil.'
         ]);
+    }
+
+    private function hitungJarak($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000;
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a =
+            sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) *
+            cos(deg2rad($lat2)) *
+            sin($dLon / 2) *
+            sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 }
