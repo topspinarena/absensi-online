@@ -14,6 +14,14 @@ class AbsensiApiController extends Controller
         $request->validate([
             'latitude' => 'required',
             'longitude' => 'required',
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+        $namaFoto = time().'.'.$request->foto->extension();
+
+        $request->foto->storeAs(
+            'public/absensi',
+            $namaFoto
+        );
         ]);
 
         // Koordinat kantor
@@ -47,15 +55,15 @@ class AbsensiApiController extends Controller
             ], 400);
         }
 
-        Absensi::create([
-            'user_id' => $request->user()->id,
-            'tanggal' => Carbon::today(),
-            'jam_masuk' => Carbon::now()->format('H:i:s'),
-            'status' => 'Hadir',
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'jarak' => round($jarak)
-        ]);
+            Absensi::create([
+                'user_id' => auth()->id(),
+                'tanggal' => now(),
+                'jam_masuk' => now()->format('H:i:s'),
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'foto' => $namaFoto,
+                'status' => 'Hadir',
+            ]);
 
         return response()->json([
             'success' => true,
