@@ -4,91 +4,144 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absensi;
+use App\Models\JadwalShift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AbsensiApiController extends Controller
 {
     public function masuk(Request $request)
-{
-    $request->validate([
-        'latitude' => 'required',
-        'longitude' => 'required',
-        'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
+    {
+        $request->validate([
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    $namaFoto = time() . '.' . $request->foto->extension();
+        $namaFoto = time() . '.' . $request->foto->extension();
 
-    $request->foto->storeAs(
-        'public/absensi',
-        $namaFoto
-    );
+        $request->foto->storeAs(
+            'public/absensi',
+            $namaFoto
+        );
 
-    $officeLat = -5.167001;
-    $officeLng = 119.394241;
-    $radius = 100;
+        $officeLat = -5.167001;
+        $officeLng = 119.394241;
+        $radius = 100;
 
-    $jarak = $this->hitungJarak(
-        $request->latitude,
-        $request->longitude,
-        $officeLat,
-        $officeLng
-    );
+        $jarak = $this->hitungJarak(
+            $request->latitude,
+            $request->longitude,
+            $officeLat,
+            $officeLng
+        );
 
-    if ($jarak > $radius) {
+        if ($jarak > $radius) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda berada di luar area kantor.',
+                'jarak' => $jarak
+            ], 422);
+        }
+
+        $cek = Absensi::where(
+            'user_id',
+            auth()->id()
+        )
+            ->whereDate(
+                'tanggal',
+                Carbon::today('Asia/Makassar')
+            )
+            ->first();
+
+        if ($cek) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah melakukan absen masuk.'
+            ], 400);
+        }
+
+        $jamMasuk = Carbon::now('Asia/Makassar');
+
+        $jadwal = JadwalShift::where(
+            'user_id',
+            auth()->id()
+        )
+            ->whereDate(
+                'tanggal',
+                Carbon::today('Asia/Makassar')
+            )
+            ->first();
+
+        if (!$jadwal) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Shift hari ini belum ditentukan.'
+            ], 422);
+        }
+
+        $status = 'Hadir';
+
+        if ($jadwal->shift == 'pagi') {
+
+            $batasJam = Carbon::createFromTime(
+                9,
+                0,
+                0,
+                'Asia/Makassar'
+            );
+
+        } else {
+
+            $batasJam = Carbon::createFromTime(
+                16,
+                0,
+                0,
+                'Asia/Makassar'
+            );
+        }
+
+        if ($jamMasuk->greaterThan($batasJam)) {
+            $status = 'Terlambat';
+        }
+
+        \Log::info([
+            'user_id' => auth()->id(),
+            'shift' => $jadwal->shift,
+            'jam_masuk' => $jamMasuk->format('H:i:s'),
+            'status' => $status,
+        ]);
+
+        Absensi::create([
+            'user_id' => auth()->id(),
+            'tanggal' => Carbon::now(
+                'Asia/Makassar'
+            )->toDateString(),
+            'jam_masuk' => $jamMasuk->format('H:i:s'),
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'foto' => $namaFoto,
+            'jarak' => $jarak,
+            'status' => $status,
+        ]);
 
         return response()->json([
-            'success' => false,
-            'message' => 'Anda berada di luar area kantor.',
-            'jarak' => $jarak
-        ], 422);
-
+            'success' => true,
+            'message' => 'Absen masuk berhasil.',
+            'status' => $status,
+        ]);
     }
-
-    $cek = Absensi::where('user_id', $request->user()->id)
-        ->whereDate('tanggal', Carbon::today())
-        ->first();
-
-    if ($cek) {
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Anda sudah melakukan absen masuk.'
-        ], 400);
-
-    }
-
-    $jamMasuk = Carbon::now('Asia/Makassar');
-
-$status = $jamMasuk->format('H:i:s') > '09:00:00'
-    ? 'Terlambat'
-    : 'Hadir';
-
-\Log::info([
-    'jam' => $jamMasuk->format('H:i:s'),
-    'status' => $status,
-]);
-
-Absensi::create([
-    'user_id' => auth()->id(),
-    'tanggal' => now(),
-    'jam_masuk' => $jamMasuk->format('H:i:s'),
-    'latitude' => $request->latitude,
-    'longitude' => $request->longitude,
-    'foto' => $namaFoto,
-    'status' => $status,
-]);
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Absen masuk berhasil.'
-    ]);
-}
 
     public function keluar(Request $request)
     {
-        $absensi = Absensi::where('user_id', $request->user()->id)
-            ->whereDate('tanggal', Carbon::today())
+        $absensi = Absensi::where(
+            'user_id',
+            auth()->id()
+        )
+            ->whereDate(
+                'tanggal',
+                Carbon::today('Asia/Makassar')
+            )
             ->first();
 
         if (!$absensi) {
@@ -106,7 +159,9 @@ Absensi::create([
         }
 
         $absensi->update([
-            'jam_keluar' => Carbon::now()->format('H:i:s')
+            'jam_keluar' => Carbon::now(
+                'Asia/Makassar'
+            )->format('H:i:s')
         ]);
 
         return response()->json([
@@ -115,8 +170,12 @@ Absensi::create([
         ]);
     }
 
-    private function hitungJarak($lat1, $lon1, $lat2, $lon2)
-    {
+    private function hitungJarak(
+        $lat1,
+        $lon1,
+        $lat2,
+        $lon2
+    ) {
         $earthRadius = 6371000;
 
         $dLat = deg2rad($lat2 - $lat1);
@@ -129,7 +188,10 @@ Absensi::create([
             sin($dLon / 2) *
             sin($dLon / 2);
 
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $c = 2 * atan2(
+            sqrt($a),
+            sqrt(1 - $a)
+        );
 
         return $earthRadius * $c;
     }
