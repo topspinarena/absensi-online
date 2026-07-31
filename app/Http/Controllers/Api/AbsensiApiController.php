@@ -58,12 +58,13 @@ class AbsensiApiController extends Controller
 
     }
 
-    $jamMasuk = Carbon::now();
+    $jamMasuk = Carbon::now('Asia/Makassar');
 
 $batasTerlambat = Carbon::createFromTime(
     9,
     0,
-    0
+    0,
+    'Asia/Makassar'
 );
 
 $status = "Hadir";
@@ -71,6 +72,10 @@ $status = "Hadir";
 if ($jamMasuk->greaterThan($batasTerlambat)) {
     $status = "Terlambat";
 }
+return response()->json([
+    'jam' => $jamMasuk->format('H:i:s'),
+    'status' => $status
+]);
 
 Absensi::create([
     'user_id' => auth()->id(),
