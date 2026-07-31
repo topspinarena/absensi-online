@@ -58,15 +58,23 @@ class AbsensiApiController extends Controller
 
     }
 
-    Absensi::create([
-        'user_id' => auth()->id(),
-        'tanggal' => now(),
-        'jam_masuk' => now()->format('H:i:s'),
-        'latitude' => $request->latitude,
-        'longitude' => $request->longitude,
-        'foto' => $namaFoto,
-        'status' => 'Hadir',
-    ]);
+    $jamMasuk = now();
+
+$status = "Hadir";
+
+if ($jamMasuk->format('H:i:s') > '08:00:00') {
+    $status = "Terlambat";
+}
+
+Absensi::create([
+    'user_id' => auth()->id(),
+    'tanggal' => now(),
+    'jam_masuk' => $jamMasuk->format('H:i:s'),
+    'latitude' => $request->latitude,
+    'longitude' => $request->longitude,
+    'foto' => $namaFoto,
+    'status' => $status,
+]);
 
     return response()->json([
         'success' => true,
