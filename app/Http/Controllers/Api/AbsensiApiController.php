@@ -10,39 +10,37 @@ use Illuminate\Http\Request;
 class AbsensiApiController extends Controller
 {
     public function masuk(Request $request)
-    {
-        $request->validate([
-            'latitude' => 'required',
-            'longitude' => 'required',
-            'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-        $namaFoto = time().'.'.$request->foto->extension();
+{
+    $request->validate([
+        'latitude' => 'required',
+        'longitude' => 'required',
+        'foto' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
 
-        $request->foto->storeAs(
-            'public/absensi',
-            $namaFoto
-        );
-        ]);
+    $namaFoto = time() . '.' . $request->foto->extension();
 
-        // Koordinat kantor
-        $officeLat = -5.167001;
-        $officeLng = 119.394241;
-        $radius = 100; // meter
+    $request->foto->storeAs(
+        'public/absensi',
+        $namaFoto
+    );
 
-        $jarak = $this->hitungJarak(
-            $request->latitude,
-            $request->longitude,
-            $officeLat,
-            $officeLng
-        );
+    $officeLat = -5.167001;
+    $officeLng = 119.394241;
+    $radius = 100;
 
-        if ($jarak > $radius) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda berada di luar area kantor.'
-            ], 422);
-        }
+    $jarak = $this->hitungJarak(
+        $request->latitude,
+        $request->longitude,
+        $officeLat,
+        $officeLng
+    );
 
+    return response()->json([
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+        'jarak' => $jarak
+    ]);
+}
         // Cek apakah sudah absen hari ini
         $cek = Absensi::where('user_id', $request->user()->id)
             ->whereDate('tanggal', Carbon::today())
