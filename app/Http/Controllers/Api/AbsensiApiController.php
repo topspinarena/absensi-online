@@ -73,7 +73,7 @@ if ($jamMasuk->greaterThan($batasTerlambat)) {
     $status = "Terlambat";
 }
 
-Absensi::create([
+$absensi = Absensi::create([
     'user_id' => auth()->id(),
     'tanggal' => now(),
     'jam_masuk' => $jamMasuk->format('H:i:s'),
