@@ -67,14 +67,10 @@ $batasTerlambat = Carbon::createFromTime(
     'Asia/Makassar'
 );
 
-$status = "Hadir";
-
-if ($jamMasuk->greaterThan($batasTerlambat)) {
-    $status = "Terlambat";
-}
 return response()->json([
-    'jam' => $jamMasuk->format('H:i:s'),
-    'status' => $status
+    'server_time' => $jamMasuk->format('Y-m-d H:i:s'),
+    'batas' => $batasTerlambat->format('Y-m-d H:i:s'),
+    'timezone' => config('app.timezone'),
 ]);
 
 Absensi::create([
