@@ -35,39 +35,44 @@ class AbsensiApiController extends Controller
         $officeLng
     );
 
-    return response()->json([
-        'latitude' => $request->latitude,
-        'longitude' => $request->longitude,
-        'jarak' => $jarak
-    ]);
-}
-        // Cek apakah sudah absen hari ini
-        $cek = Absensi::where('user_id', $request->user()->id)
-            ->whereDate('tanggal', Carbon::today())
-            ->first();
-
-        if ($cek) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Anda sudah melakukan absen masuk.'
-            ], 400);
-        }
-
-            Absensi::create([
-                'user_id' => auth()->id(),
-                'tanggal' => now(),
-                'jam_masuk' => now()->format('H:i:s'),
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'foto' => $namaFoto,
-                'status' => 'Hadir',
-            ]);
+    if ($jarak > $radius) {
 
         return response()->json([
-            'success' => true,
-            'message' => 'Absen masuk berhasil.'
-        ]);
+            'success' => false,
+            'message' => 'Anda berada di luar area kantor.',
+            'jarak' => $jarak
+        ], 422);
+
     }
+
+    $cek = Absensi::where('user_id', $request->user()->id)
+        ->whereDate('tanggal', Carbon::today())
+        ->first();
+
+    if ($cek) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda sudah melakukan absen masuk.'
+        ], 400);
+
+    }
+
+    Absensi::create([
+        'user_id' => auth()->id(),
+        'tanggal' => now(),
+        'jam_masuk' => now()->format('H:i:s'),
+        'latitude' => $request->latitude,
+        'longitude' => $request->longitude,
+        'foto' => $namaFoto,
+        'status' => 'Hadir',
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Absen masuk berhasil.'
+    ]);
+}
 
     public function keluar(Request $request)
     {
