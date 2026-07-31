@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'shift'
     ];
 
     protected $hidden = [
@@ -30,4 +31,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function jadwalShift()
+{
+    return $this->hasMany(JadwalShift::class);
+}
 }
