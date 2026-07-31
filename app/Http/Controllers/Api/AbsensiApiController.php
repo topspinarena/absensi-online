@@ -58,11 +58,17 @@ class AbsensiApiController extends Controller
 
     }
 
-    $jamMasuk = now();
+    $jamMasuk = Carbon::now();
+
+$batasTerlambat = Carbon::createFromTime(
+    9,
+    0,
+    0
+);
 
 $status = "Hadir";
 
-if ($jamMasuk->format('H:i:s') > '08:00:00') {
+if ($jamMasuk->greaterThan($batasTerlambat)) {
     $status = "Terlambat";
 }
 
